@@ -1,0 +1,240 @@
+---
+title: "Swatch Creator: And a Homage to Shetland Wool Week"
+author: "Laurie Baker"
+institution: "College of the Atlantic"
+date: "7/3/2022"
+output:
+  html_document:
+    self_contained: FALSE
+    toc: TRUE
+    toc_float: TRUE
+    theme: readable
+    highlight: espresso
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+
+```{r Libraries}
+library(tidyverse)
+library(raster)
+library(kableExtra)
+library(DT)
+library(magick)
+
+```
+
+
+## Experimenting with different yarn colors {.tabset}
+
+I love colour-work in knitting, especially fair isle. I'm also a big fan of the Jamieson's of Shetland yarn collection. My wedding present to some recently married friends are knitting them two of [Gudrun Johnston's](https://www.instagram.com/gudrunjohnston/) [Bousta Beanie](https://www.ravelry.com/patterns/library/bousta-beanie) hats. 
+
+```{r, fig.cap = "Image: Me holding dinner in my Crofthoose Shetland Wool Week Hat by Ella Gordon", out.width = "110%"}
+knitr::include_graphics("images/laurie_wool_week.jpg")
+# knitr::include_graphics("images/ShetlandWoolWeekHats.jpg")
+```
+
+
+For the color-scheme's they've chosen:
+
+* **Julianna**: Loganberry, mirage, and eesit/white.
+* **Tom**: Purple heather, scotch broom, and eesit/white.
+
+
+I wanted to explore what the colours would look like in the pattern and also create a tool that others could use to plan their next woolly garment.
+
+To do this I scraped the photos of the yarns from the Jamieson's website. I then set about extracting the colors. 
+
+```{r, echo = TRUE, eval = FALSE}
+
+# Function to count the colours (adapted from Jeroen Ooms and Matt Dray: https://www.rostrum.blog/2018/11/25/art-of-the-possible/)
+
+
+get_top_color_blend <- function(image_path) {
+  image_i <- image_read(image_path)
+  img <- image_convolve(image_i, 'Gaussian:0x5', scaling = '60,20%')
+  top_hex <- image_data(img) %>%
+    apply(2:3, paste, collapse = "") %>% 
+    as.vector %>% table() %>%  as.data.frame() %>% 
+    setNames(c("hex", "freq")) %>%
+    mutate(hex = paste("#", hex, sep="")) %>%
+    slice_max(order_by = freq, n = 1) %>%
+    pull(hex)
+  
+  return(top_hex) # Keep researching to eplace with average
+}
+
+get_top_color <- function(image_path) {
+  img <- image_read(image_path)
+  top_hex <- image_data(img) %>%
+    apply(2:3, paste, collapse = "") %>% 
+    as.vector %>% table() %>%  as.data.frame() %>% 
+    setNames(c("hex", "freq")) %>%
+    mutate(hex = paste("#", hex, sep="")) %>%
+    slice_max(order_by = freq, n = 3) %>%
+    pull(hex)
+  
+  return(top_hex[3]) #
+}
+
+get_top3_color <- function(image_path) {
+  img <- image_read(image_path)
+  top_hex <- image_data(img) %>%
+    apply(2:3, paste, collapse = "") %>% 
+    as.vector %>% table() %>%  as.data.frame() %>% 
+    setNames(c("hex", "freq")) %>%
+    mutate(hex = paste("#", hex, sep="")) %>%
+    slice_max(order_by = freq, n = 3) %>%
+    pull(hex)
+  
+  return(top_hex[3]) #
+}
+
+
+```
+
+
+
+```{r}
+
+yarn_table <- read_csv("template/yarn_table.csv")
+
+(yarn_datatable <- yarn_table[ ,c("Name", "Yarn", "Hex Code (M)", "Hex Code (B)", "Hex Code (3)")] %>%
+      DT::datatable(escape = FALSE) %>% 
+      DT::formatStyle(columns = "Hex Code (M)", 
+                      target = 'cell',
+                      color = "white",
+                      backgroundColor = DT::styleEqual(yarn_table$`Hex Code (M)`,
+                                                       yarn_table$`Hex Code (M)`))) %>% 
+      DT::formatStyle(columns = "Hex Code (B)", 
+                      target = 'cell',
+                      color = "white",
+                      backgroundColor = DT::styleEqual(yarn_table$`Hex Code (B)`,
+                                                       yarn_table$`Hex Code (B)`)) %>% 
+      DT::formatStyle(columns = "Hex Code (3)", 
+                      target = 'cell',
+                      color = "white",
+                      backgroundColor = DT::styleEqual(yarn_table$`Hex Code (3)`,
+                                                       yarn_table$`Hex Code (3)`))
+
+```
+
+
+```{r create_swatch}
+
+create_swatch <- function(rows, stitches){
+  swatch <- as.data.frame(matrix("Blank", ncol = stitches, nrow = rows))
+  swatch
+}
+
+my_swatch <- create_swatch(rows = 14, stitches = 20)
+```
+
+
+```{r}
+
+bousta_generator <- function(swatch){
+for(i in 1:nrow(swatch)){
+  for(j in 1:ncol(swatch)){
+    if(i %in% c(8, 14) & j %in% seq(from = 4, to = ncol(swatch), by = 4)){
+      swatch[i, j] <- "C1"
+      }
+    if(i %in% c(9:13) & j %in% seq(from = 3, to = ncol(swatch), by = 4)){
+      swatch[i, j] <- "C1"
+      }
+    if(i %in% c(10:12) & j %in% seq(from = 2, to = ncol(swatch), by = 4)){
+      swatch[i, j]  <- "C1"
+      }
+    if(i == 11 & j %in% seq(from = 1, to = ncol(swatch), by = 4)){
+      swatch[i, j]  <- "C1"
+      }
+    if(i %in% c(1, 7) & j %in% seq(from = 1, to = ncol(swatch), by = 4)){
+      swatch[i, j] <- "C2"
+      }
+    if(i %in% c(2:6) & j %in% seq(from = 2, to = ncol(swatch), by = 4)){
+      swatch[i, j] <- "C2"
+      }
+    if(i %in% c(3:5) & j %in% seq(from = 3, to = ncol(swatch), by = 4)){
+      swatch[i, j]  <- "C2"
+      }
+    if(i == 4 & j %in% seq(from = 4, to = ncol(swatch), by = 4)){
+      swatch[i, j]  <- "C2"
+      }
+    if(swatch[i, j] == "Blank"){
+      swatch[i, j] <- "C3"
+    }
+  }
+}
+  swatch
+}
+
+bousta_template <- bousta_generator(swatch = my_swatch)
+```
+
+```{r}
+
+hat_chart_prep <- function(pattern = bousta_template,
+                           colour1 = yarn_table[str_which(yarn_table$Yarn, pattern = "Mirage"), ]$`Hex Code (M)`, 
+                           colour2 = yarn_table[str_which(yarn_table$Yarn, pattern = "Eesit\\/White"), ]$`Hex Code (M)`, 
+                           colour3 = yarn_table[str_which(yarn_table$Yarn, pattern = "Loganberry"), ]$`Hex Code (M)`){
+pattern %>%
+  mutate(row_num = nrow(pattern):1, .before = "V1") %>%
+  pivot_longer(cols = !row_num, names_to = "col_num", values_to = "stitch") %>%
+  mutate(col_num = substr(col_num, 2, nchar(col_num))) %>%
+  mutate(label = case_when(stitch == "C1" ~ "Color 1", 
+                           stitch == "C2" ~ "Color 2",
+                           stitch == "C3" ~ "Color 3",
+                           TRUE ~ "Missing")) %>%
+  mutate(color = case_when(stitch == "C1" ~ colour1,
+                           stitch == "C2" ~ colour2,
+                           stitch == "C3" ~ colour3))
+}
+
+```
+
+```{r}
+
+hat_chart1 <- hat_chart_prep()
+hat_chart2 <- hat_chart_prep(colour1 = yarn_table[str_which(yarn_table$Yarn, pattern = "Eesit\\/White"), ]$`Hex Code (M)`, colour2 = yarn_table[str_which(yarn_table$Yarn, pattern = "Purple Heather"), ]$`Hex Code (3)`, colour3 = yarn_table[str_which(yarn_table$Yarn, pattern = "Scotch Broom"), ]$`Hex Code (M)`)
+
+hat_chart3 <- hat_chart_prep(colour1 = yarn_table[str_which(yarn_table$Yarn, pattern = "Eesit\\/White"), ]$`Hex Code (M)`, colour2 = yarn_table[str_which(yarn_table$Yarn, pattern = "Scotch Broom"), ]$`Hex Code (M)`, colour3 = yarn_table[str_which(yarn_table$Yarn, pattern = "Purple Heather"), ]$`Hex Code (3)`)
+
+
+```
+
+```{r}
+
+plot_hat_chart <- function(chart){
+ggplot(chart, aes(y = as.numeric(row_num), x = as.numeric(col_num))) +
+  geom_tile(aes(fill = color), alpha = 0.9, color = "black") +
+  labs(y = "Row",
+       x = " ") +
+  scale_x_continuous(breaks = 5, labels = "") +
+  scale_y_continuous(breaks = chart$row_num, labels = as.character(chart$row_num), position = "right") +
+    scale_fill_identity()
+}
+
+```
+
+### Julianna
+
+```{r}
+plot_hat_chart(hat_chart1) +
+  labs(title = "Julianna's Beanie")
+```
+
+### Tom 1
+```{r}
+plot_hat_chart(hat_chart2) +
+  labs(title = "Tom's Beanie Option 1")
+```
+
+### Tom 2
+
+```{r}
+plot_hat_chart(hat_chart3) +
+  labs(title = "Tom's Beanie Option 2")
+```
