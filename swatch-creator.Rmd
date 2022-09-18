@@ -277,3 +277,8 @@ plot_hat_chart(hat_chart2) +
 plot_hat_chart(hat_chart3) +
   labs(title = "Tom's Beanie Option 2")
 ```
+
+
+## Code
+
+Interested in seeing the full code? Check out my [Github Repo](https://github.com/LaurieLBaker/swatch-creator). You can follow my explorations into mitten design at [Coded Mittens](https://laurielbaker.github.io/coded-mittens/selbu_mitten_generator.html).
