@@ -8,7 +8,7 @@ output:
     self_contained: FALSE
     toc: TRUE
     toc_float: TRUE
-    theme: readable
+    theme: journal
     highlight: espresso
 ---
 
@@ -59,7 +59,7 @@ Each year a designer creates a knitting pattern for a hat for the week. They are
 My first ever colour-work project was knitting [Gudrun Johnston's](https://www.instagram.com/gudrunjohnston/) [Bousta Beanie](https://www.ravelry.com/patterns/library/bousta-beanie) hat. It's been a real delight this year to revisit the pattern as my wedding present to two friends, Julianna and Tom, who were married this Spring. 
 
 
-```{r, fig.cap = "My trusty Bousta Beanie. Pattern by Gudrun Johnston", out.width = "80%"}
+```{r, fig.cap = "**My trusty Bousta Beanie.** Pattern by Gudrun Johnston", out.width = "80%"}
   knitr::include_graphics("images/bousta_beanie.jpg")
 ```
 
