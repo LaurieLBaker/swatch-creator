@@ -1,5 +1,5 @@
 ---
-title: "Swatch Creator: And a Homage to Shetland Wool Week"
+title: "Swatch Creator"
 author: "Laurie Baker"
 institution: "College of the Atlantic"
 date: "7/3/2022"
@@ -24,27 +24,52 @@ library(raster)
 library(kableExtra)
 library(DT)
 library(magick)
+library(leaflet)
 
 ```
 
 
-## Experimenting with different yarn colors {.tabset}
+## A Homage to Shetland Wool Week {.tabset}
 
-I love colour-work in knitting, especially fair isle. I'm also a big fan of the Jamieson's of Shetland yarn collection. My wedding present to some recently married friends are knitting them two of [Gudrun Johnston's](https://www.instagram.com/gudrunjohnston/) [Bousta Beanie](https://www.ravelry.com/patterns/library/bousta-beanie) hats. 
+My first foray into colour-work knitting was through [Shetland Wool Week](https://www.shetlandwoolweek.com/). Shetland Wool Week is a week long event celebrating Britain's most northerly native sheep, the Shetland textile industry and the rural farming community. 
 
-```{r, fig.cap = "Image: Me holding dinner in my Crofthoose Shetland Wool Week Hat by Ella Gordon", out.width = "110%"}
-knitr::include_graphics("images/laurie_wool_week.jpg")
-# knitr::include_graphics("images/ShetlandWoolWeekHats.jpg")
+```{r}
+
+leaflet() %>%
+  addProviderTiles(providers$Esri.OceanBasemap) %>%
+  setView(lng = -1.2,
+          lat = 60,
+          zoom = 7) %>%
+  addMarkers(lng = -1.14199,
+                   lat = 60.15309,
+                   label = "My favourite yarn shop: [Jamieson's of Shetland](https://www.jamiesonsofshetland.co.uk/jamiesons-of-shetland--cobweb-ultra-25-c.asp)")
+
 ```
 
 
-For the color-scheme's they've chosen:
-
-* **Julianna**: Loganberry, mirage, and eesit/white.
-* **Tom**: Purple heather, scotch broom, and eesit/white.
+Each year a designer creates a knitting pattern for a hat for the week. They are wonderful designs and a great way of connecting knitters around the world. You never know where you'll meet a Shetland Wool Weeker!
 
 
-I wanted to explore what the colours would look like in the pattern and also create a tool that others could use to plan their next woolly garment.
+```{r, fig.cap = "**Shetland Wool Week Hats.** Illustration by [Cathryn Worrell](https://cathrynworrell.com/blog/2019/09/06/shetland-wool-week-hats). Patterns by designers, [Olive Henry](https://olivershetlandwoolblog.home.blog/), [Elizabeth Johnston](http://www.shetlandhandspun.com/), [Gudrun Johnston](https://www.instagram.com/gudrunjohnston/), [Ella Gordon](https://ellagordondesigns.co.uk/), [Donna Smith](https://www.donnasmithdesigns.co.uk/), and [Hazel Tindall](https://www.hazeltindall.com/)", out.width = "120%"}
+  knitr::include_graphics("images/wool_week_hats.jpg")
+```
+
+## The Bousta Beanie
+
+My first ever colour-work project was knitting [Gudrun Johnston's](https://www.instagram.com/gudrunjohnston/) [Bousta Beanie](https://www.ravelry.com/patterns/library/bousta-beanie) hat. It's been a real delight this year to revisit the pattern as my wedding present to two friends, Julianna and Tom, who were married this Spring. 
+
+
+```{r, fig.cap = "My trusty Bousta Beanie. Pattern by Gudrun Johnston", out.width = "80%"}
+  knitr::include_graphics("images/bousta_beanie.jpg")
+```
+
+
+I knit the pattern using [Jamieson's of Shetland](https://www.jamiesonsofshetland.co.uk/jamiesons-of-shetland--cobweb-ultra-25-c.asp) 2-ply yarn. My friends were excited and a little overwhelmend by all the possible color combinations they could choose! 
+
+## Introducing Swatch-Creator
+
+As a Professor of Computer Science at College of the Atlantic in Bar Harbor, Maine. I knew there was a way that I could help them choose the colours for their hat using coding and a bit of webscraping! And thus, swatch-creator was born as a way to choose and try out different colors for patterns. 
+
 
 To do this I scraped the photos of the yarns from the Jamieson's website. I then set about extracting the colors. 
 
@@ -96,7 +121,7 @@ get_top3_color <- function(image_path) {
 
 ```
 
-
+I tried a few different methods, either averaging the colours in the image, or picking out the most dominant or second-most dominant colors. I was able to do a good job matching some of the colors, but struggled with the yarns which have lots of beautiful specks in the yarn. Another challenge was the shadowing in some of the pictures, in which case the second-most dominant color was a better match. I'll continue tinkering with this part of the code to match the colors better.
 
 ```{r}
 
@@ -122,6 +147,12 @@ yarn_table <- read_csv("template/yarn_table.csv")
 
 ```
 
+## Creating the swatch
+
+For their hats my friends chose the following colours:
+
+* **Julianna**: Loganberry, mirage, and eesit/white.
+* **Tom**: Purple heather, scotch broom, and eesit/white.
 
 ```{r create_swatch}
 
@@ -198,9 +229,13 @@ pattern %>%
 ```{r}
 
 hat_chart1 <- hat_chart_prep()
-hat_chart2 <- hat_chart_prep(colour1 = yarn_table[str_which(yarn_table$Yarn, pattern = "Eesit\\/White"), ]$`Hex Code (M)`, colour2 = yarn_table[str_which(yarn_table$Yarn, pattern = "Purple Heather"), ]$`Hex Code (3)`, colour3 = yarn_table[str_which(yarn_table$Yarn, pattern = "Scotch Broom"), ]$`Hex Code (M)`)
+hat_chart2 <- hat_chart_prep(colour1 = yarn_table[str_which(yarn_table$Yarn, pattern = "Eesit\\/White"), ]$`Hex Code (M)`, 
+                             colour2 = yarn_table[str_which(yarn_table$Yarn, pattern = "Purple Heather"), ]$`Hex Code (3)`, 
+                             colour3 = yarn_table[str_which(yarn_table$Yarn, pattern = "Scotch Broom"), ]$`Hex Code (M)`)
 
-hat_chart3 <- hat_chart_prep(colour1 = yarn_table[str_which(yarn_table$Yarn, pattern = "Eesit\\/White"), ]$`Hex Code (M)`, colour2 = yarn_table[str_which(yarn_table$Yarn, pattern = "Scotch Broom"), ]$`Hex Code (M)`, colour3 = yarn_table[str_which(yarn_table$Yarn, pattern = "Purple Heather"), ]$`Hex Code (3)`)
+hat_chart3 <- hat_chart_prep(colour1 = yarn_table[str_which(yarn_table$Yarn, pattern = "Eesit\\/White"), ]$`Hex Code (M)`, 
+                             colour2 = yarn_table[str_which(yarn_table$Yarn, pattern = "Scotch Broom"), ]$`Hex Code (M)`, 
+                             colour3 = yarn_table[str_which(yarn_table$Yarn, pattern = "Purple Heather"), ]$`Hex Code (3)`)
 
 
 ```
@@ -208,16 +243,20 @@ hat_chart3 <- hat_chart_prep(colour1 = yarn_table[str_which(yarn_table$Yarn, pat
 ```{r}
 
 plot_hat_chart <- function(chart){
-ggplot(chart, aes(y = as.numeric(row_num), x = as.numeric(col_num))) +
+  ggplot(chart, aes(y = as.numeric(row_num), x = as.numeric(col_num))) +
   geom_tile(aes(fill = color), alpha = 0.9, color = "black") +
   labs(y = "Row",
        x = " ") +
   scale_x_continuous(breaks = 5, labels = "") +
-  scale_y_continuous(breaks = chart$row_num, labels = as.character(chart$row_num), position = "right") +
+  scale_y_continuous(breaks = chart$row_num, 
+                     labels = as.character(chart$row_num), 
+                     position = "right") +
     scale_fill_identity()
 }
 
 ```
+
+## Swatches {.tabset}
 
 ### Julianna
 
